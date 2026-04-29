@@ -1,7 +1,8 @@
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { CheckCircle2 } from "lucide-react";
 
 export function Benefits() {
+  const shouldReduceMotion = useReducedMotion();
   const benefits = [
     "Reduce missed calls by 95%",
     "Increase appointment bookings by 60%",
@@ -61,8 +62,9 @@ export function Benefits() {
                   {/* AI Call Animation */}
                   <div className="flex items-center gap-4">
                     <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      whileInView={shouldReduceMotion ? { scale: 1 } : { scale: [1, 1.08, 1] }}
+                      viewport={{ amount: 0.6 }}
+                      transition={shouldReduceMotion ? undefined : { duration: 2.4, repeat: Infinity }}
                       className="flex size-16 items-center justify-center rounded-full bg-emerald-500 shadow-lg"
                     >
                       <svg
@@ -91,8 +93,9 @@ export function Benefits() {
                       <motion.div
                         key={i}
                         initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.3, repeat: Infinity, repeatDelay: 2 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.5 }}
+                        transition={{ delay: i * 0.1, duration: 0.35 }}
                         className="flex items-center gap-3 rounded-lg bg-white p-4 shadow-sm"
                       >
                         <div className="size-10 rounded-full bg-green-100"></div>
@@ -108,8 +111,9 @@ export function Benefits() {
 
               {/* Floating stats */}
               <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity }}
+                whileInView={shouldReduceMotion ? { y: 0 } : { y: [0, -10, 0] }}
+                viewport={{ amount: 0.5 }}
+                transition={shouldReduceMotion ? undefined : { duration: 3.2, repeat: Infinity }}
                 className="absolute -right-4 -top-4 rounded-xl border border-emerald-200 bg-white p-4 shadow-lg"
               >
                 <p className="text-sm font-medium text-slate-600">Efficiency Boost</p>
@@ -117,8 +121,9 @@ export function Benefits() {
               </motion.div>
 
               <motion.div
-                animate={{ y: [0, -15, 0] }}
-                transition={{ duration: 4, repeat: Infinity }}
+                whileInView={shouldReduceMotion ? { y: 0 } : { y: [0, -15, 0] }}
+                viewport={{ amount: 0.5 }}
+                transition={shouldReduceMotion ? undefined : { duration: 4.2, repeat: Infinity }}
                 className="absolute -bottom-4 -left-4 rounded-xl border border-green-200 bg-white p-4 shadow-lg"
               >
                 <p className="text-sm font-medium text-slate-600">Time Saved</p>

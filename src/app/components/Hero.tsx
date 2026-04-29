@@ -1,11 +1,55 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { ArrowRight, LayoutDashboard, Calendar, Phone, Bell, Search, ToggleRight, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
-import { AuroraBackground } from "./ui/aurora-background";
 
 const tabs = ["Dashboard", "Schedule", "Calls & Logs"] as const;
+const rotatingTitles = ["Effortless", "Intelligent", "Always-On", "Automated", "Modern"] as const;
 type Tab = (typeof tabs)[number];
+
+function RotatingHeadline() {
+  const [titleNumber, setTitleNumber] = useState(0);
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (shouldReduceMotion) return;
+
+    const id = window.setTimeout(() => {
+      setTitleNumber((n) => (n === rotatingTitles.length - 1 ? 0 : n + 1));
+    }, 3200);
+
+    return () => window.clearTimeout(id);
+  }, [shouldReduceMotion, titleNumber]);
+
+  if (shouldReduceMotion) {
+    return (
+      <span className="bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
+        Intelligent
+      </span>
+    );
+  }
+
+  return (
+    <span className="relative inline-flex min-w-[11ch] overflow-hidden pr-1">
+      {rotatingTitles.map((title, index) => (
+        <motion.span
+          key={title}
+          className="absolute left-0 top-0 bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent"
+          initial={{ opacity: 0, y: 80 }}
+          transition={{ type: "spring", stiffness: 60, damping: 18 }}
+          animate={
+            titleNumber === index
+              ? { y: 0, opacity: 1 }
+              : { y: titleNumber > index ? -80 : 80, opacity: 0 }
+          }
+        >
+          {title}
+        </motion.span>
+      ))}
+      <span className="invisible">Automated</span>
+    </span>
+  );
+}
 
 function DashboardScreen({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
   return (
@@ -472,18 +516,6 @@ function CallsLogsScreen({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
 
 export function Hero({ onOpenForm }: { onOpenForm: () => void }) {
   const [activeTab, setActiveTab] = useState<Tab>("Dashboard");
-  const [titleNumber, setTitleNumber] = useState(0);
-  const titles = useMemo(
-    () => ["Effortless", "Intelligent", "Always-On", "Automated", "Modern"],
-    []
-  );
-
-  useEffect(() => {
-    const id = setTimeout(() => {
-      setTitleNumber((n) => (n === titles.length - 1 ? 0 : n + 1));
-    }, 2200);
-    return () => clearTimeout(id);
-  }, [titleNumber, titles]);
 
   const demoViewerPanel = useMemo(() => (
     <motion.div
@@ -542,31 +574,11 @@ export function Hero({ onOpenForm }: { onOpenForm: () => void }) {
           </AnimatePresence>
         </div>
       </div>
-
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -bottom-4 -right-4 hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-xl sm:flex"
-      >
-        <div className="size-2 animate-pulse rounded-full bg-emerald-400" />
-        <div>
-          <p className="text-[10px] font-semibold text-slate-700">84 calls handled by AI</p>
-          <p className="text-[9px] text-slate-400">today • 98.5% answered</p>
-        </div>
-      </motion.div>
     </motion.div>
   ), [activeTab]);
 
   return (
-    <AuroraBackground
-      className="h-auto items-start justify-start overflow-hidden px-4 pb-16 pt-28 sm:px-6 sm:pb-24 md:pt-40"
-      showRadialGradient
-    >
-      {/* Decorative elements */}
-      <div className="pointer-events-none absolute left-10 top-32 size-24 rounded-2xl border-2 border-emerald-200/40 opacity-60"></div>
-      <div className="pointer-events-none absolute right-20 top-40 size-16 rounded-xl border-2 border-green-200/40 opacity-50"></div>
-      <div className="pointer-events-none absolute bottom-20 left-1/4 size-20 rounded-2xl bg-emerald-100/20"></div>
-
+    <section className="overflow-hidden bg-background px-4 pb-16 pt-28 sm:px-6 sm:pb-24 md:pt-40">
       <div className="mx-auto max-w-7xl w-full">
         <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
           {/* Left Content */}
@@ -578,24 +590,7 @@ export function Hero({ onOpenForm }: { onOpenForm: () => void }) {
           >
             <h1 className="mb-6 text-4xl font-bold leading-[1.08] text-foreground sm:text-5xl md:text-6xl lg:mb-8 lg:text-[6rem]">
               <span className="block">
-                <span className="relative inline-flex min-w-[11ch] overflow-hidden pr-1">
-                  {titles.map((title, index) => (
-                    <motion.span
-                      key={index}
-                      className="absolute left-0 top-0 bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent"
-                      initial={{ opacity: 0, y: 80 }}
-                      transition={{ type: "spring", stiffness: 60, damping: 18 }}
-                      animate={
-                        titleNumber === index
-                          ? { y: 0, opacity: 1 }
-                          : { y: titleNumber > index ? -80 : 80, opacity: 0 }
-                      }
-                    >
-                      {title}
-                    </motion.span>
-                  ))}
-                  <span className="invisible">Automated</span>
-                </span>{" "}
+                <RotatingHeadline />{" "}
                 Receptionists
               </span>
               <span className="block">for Modern Clinics</span>
@@ -623,6 +618,6 @@ export function Hero({ onOpenForm }: { onOpenForm: () => void }) {
           </div>
         </div>
       </div>
-    </AuroraBackground>
+    </section>
   );
 }
